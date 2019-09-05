@@ -5,8 +5,6 @@ from utils.get_data import GetData
 from utils.data_clean import Data_clean
 from utils.predict_functions import calc_ads, calc_coupon, calc_deal
 
-gd = GetData()
-
 
 class Predict:
     def __init__(self, review_rate):
@@ -48,11 +46,6 @@ class Predict:
 
         X_week = int(X_organic + X_marketing)
 
-        # if X_week > stock:
-        #     ifoutstock = 1
-        # else:
-        #     ifoutstock = 0
-
         # result dict
         result_dict = {
             "salesresult": X_week,
@@ -68,7 +61,8 @@ class Predict:
         return result_dict
 
 
-def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, deal_flag, coupon_rate, deal_price=0, deal_stock=0, week_after_onshelf=0):
+def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, deal_flag, coupon_rate=0, deal_price=0, deal_stock=0, week_after_onshelf=1,
+         host='smads.cvj7a7mv2hkz.us-west-2.rds.amazonaws.com', user="sm_ppc", password="$Q3nBY6V0AByT6DW", dbname='sm_ad'):
     """
     param:
     1. keyword
@@ -83,6 +77,12 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
     10. deal_price: e.g. 3, which means -3 from original price
     11. deal_stock: e.g. 100, which means the total stock used for lightening deal
     12. week_after_onshelf: e.g. 5, which means 5 weeks after listing onshelf
+    13. host: mysql connection
+    14. user: mysql connection
+    15. password: mysql connection
+    16. dbname: mysql connection
+
+    warning: coupon_rate, deal_price, deal_stock should be 0 if coupon, deal are not set.
 
     return: {
         "Nature_sales":25.759847304230426,  ## okay
@@ -97,13 +97,14 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
     """
 
     # get data from database
+    gd = GetData(host=host, user=user, passwd=password, db=dbname)
     data = gd.get_data(keyword)
 
     # data clean
     cleaned_data = Data_clean(data)
     review_rate = cleaned_data.avg_rate
 
-    # sales of 1st Month
+    # sales
     pd = Predict(review_rate)
     result_dict = pd.predict_sales_week(cleaned_data.avg_price, cleaned_data.avg_order, cleaned_data.total_sales, price,
                                     ads_spend, list_score, coupon_rate, stock, deal_price, deal_stock, week_after_onshelf)
@@ -112,5 +113,5 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
 
 
 if __name__ == '__main__':
-    result_dict = main("mouse pad for laptop", 10, 2000, 10, 1, 0.7, 700, 1, 20, 0, 300, 2)
+    result_dict = main("mouse pad for laptop", 10, 2000, 10, 1, 0.7, 700, 1, 20, 0, 300, 2, )
     print(result_dict)
