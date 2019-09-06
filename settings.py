@@ -3,5 +3,5 @@ db = {
     'user': "sm_ppc",
     'password': "$Q3nBY6V0AByT6DW",
     'dbname': 'sm_ad',
-    'table_name': 'sdb_keyword_salespredict2',
+    'table_name': 'sdb_keyword_salespredict',
 }

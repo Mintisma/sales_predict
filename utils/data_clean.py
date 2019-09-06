@@ -19,6 +19,7 @@ class Data_clean:
 
     def data2dataframe(self):
         df = pd.DataFrame(self.data)
+        df = df.dropna()
         df = df[(df.est_sales != '') & (df.est_sales != '0') & (df.price != '') & (df.price != '0') & (
                     df.reviews_30d != '')]
         df.price = df.price.astype('float')

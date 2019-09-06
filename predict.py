@@ -113,5 +113,6 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
 
 
 if __name__ == '__main__':
-    result_dict = main("mouse pad for laptop", 10, 2000, 10, 1, 0.7, 700, 1, 20, 0, 300, 2, )
+    result_dict = main("aaa batteries energizer", 10, 2000, 10, 1, 0.7, 700, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
+                       , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
     print(result_dict)
