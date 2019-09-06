@@ -1,5 +1,6 @@
 import math
 import random
+import sys
 
 from utils.get_data import GetData
 from utils.data_clean import Data_clean
@@ -30,7 +31,10 @@ class Predict:
 
         # variable derived
         price_weight = (avg_price / price) ** 2
-        CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
+        if ads_spend:
+            CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
+        else:
+            CPS = 1
         list_score_weight = list_score * 1.3
         jitter = random.randrange(91, 110) / 100
         jitter_ads = random.randrange(70, 130) / 100
@@ -113,6 +117,25 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
 
 
 if __name__ == '__main__':
-    result_dict = main("aaa batteries energizer", 10, 2000, 10, 1, 0.7, 700, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
-                       , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
-    print(result_dict)
+    result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 0, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
+                           , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
+    #     print(result_dict)
+    #     # keyword = sys.argv[1]
+    #     # review = int(sys.argv[2])
+    #     # stock = int(sys.argv[3])
+    #     # price = float(sys.argv[4])
+    #     # date_onshelf = int(sys.argv[5])
+    # listing_score = float(sys.argv[6])
+    # ads_spend = float(sys.argv[7])
+    # deal_flag = int(sys.argv[8])
+    # coupon_rate = int(sys.argv[9])
+    # deal_price = float(sys.argv[10])
+    # deal_stock = int(sys.argv[11])
+    # week_after_onshelf = int(sys.argv[12])
+    # host = sys.argv[13]
+    # user = sys.argv[14]
+    # password = sys.argv[15]
+    # dbname = sys.argv[16]
+    # result_dict = main(keyword, review, stock, price, date_onshelf, listing_score, ads_spend, deal_flag,
+    #                    coupon_rate, deal_price, deal_stock, week_after_onshelf, host, user, password, dbname)
+    # print(result_dict)
