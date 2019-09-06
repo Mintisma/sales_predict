@@ -19,10 +19,13 @@ def calc_coupon(jitter, list_score_weight, X_organic, coupon_rate):
 def calc_deal(price, deal_price, deal_stock, jitter, X_organic, lightening_traffic_weight, lightening_time_weight):
     if deal_price:  # 如果做deal
         lightening_price = price - deal_price
-        lightening_price_weight = (price / lightening_price) ** 2
-        X_lightening_order = int(jitter * X_organic * lightening_price_weight * lightening_traffic_weight * lightening_time_weight)
-        if X_lightening_order > deal_stock:
-            X_lightening_order = deal_stock
+        if lightening_price:
+            lightening_price_weight = (price / lightening_price) ** 2
+            X_lightening_order = int(jitter * X_organic * lightening_price_weight * lightening_traffic_weight * lightening_time_weight)
+            if X_lightening_order > deal_stock:
+                X_lightening_order = deal_stock
+        else:
+            X_lightening_order = 0
     else:
         X_lightening_order = 0
 
