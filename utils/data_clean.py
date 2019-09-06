@@ -19,15 +19,19 @@ class Data_clean:
 
     def data2dataframe(self):
         df = pd.DataFrame(self.data)
-        df = df.dropna()
-        df = df[(df.est_sales != '') & (df.est_sales != '0') & (df.price != '') & (df.price != '0') & (
-                    df.reviews_30d != '')]
-        df.price = df.price.astype('float')
-        df.est_sales = df.est_sales.astype('float')
-        df.reviews_30d = df.reviews_30d.astype('float')
-        df = df[df.est_sales > 0]
-        df['orders'] = df[['est_sales', 'price']].apply(orders, axis=1)
-        return df
+        if df.shape[1] == 3:
+            df = df.dropna()
+            df = df[(df.est_sales != '') & (df.est_sales != '0') & (df.price != '') & (df.price != '0') & (
+                        df.reviews_30d != '')]
+            df.price = df.price.astype('float')
+            df.est_sales = df.est_sales.astype('float')
+            df.reviews_30d = df.reviews_30d.astype('float')
+            df = df[df.est_sales > 0]
+            df['orders'] = df[['est_sales', 'price']].apply(orders, axis=1)
+            return df
+        else:
+            print('dataframe\'s is {}'.format(df.shape))
+            raise KeyError
 
     def mean_price(self):
         avg_price = self.df['price'].mean()
