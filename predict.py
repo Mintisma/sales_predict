@@ -31,7 +31,7 @@ class Predict:
 
         # variable derived
         price_weight = (avg_price / price) ** 2
-        if ads_spend:
+        if ads_spend > 1:
             CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
         else:
             CPS = 1
@@ -117,9 +117,9 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
 
 
 if __name__ == '__main__':
-    result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 0, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
+    result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
                            , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
-    #     print(result_dict)
+    print(result_dict)
     #     # keyword = sys.argv[1]
     #     # review = int(sys.argv[2])
     #     # stock = int(sys.argv[3])
