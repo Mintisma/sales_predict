@@ -12,10 +12,11 @@ class Predict:
         self.week_ratio_dict = {1: 0.15, 2: 0.25, 3: 0.35, 4: 0.5, 5: 0.6, 6: 0.7, 7: 0.75, 8: 0.8, 9: 0.9, 10: 0.9,
                                 11: 1, 12: 1.1, 13: 1.1, 14: 1.2, 15: 1.3, 16: 1.3, 17: 1.4, 18: 1.5, 19: 1.5, 20: 1.6,
                                 21: 1.6, 22: 1.7, 23: 1.8, 24: 2}
-        self.lightening_traffic_weight = 100
+        self.lightening_traffic_weight = 50
         self.lightening_time_weight = 1 / 28
         self.review_rate = review_rate
         self.marketing_base = 100
+        self.if_out_stock = 0
 
     def predict_sales_week(self, avg_price, avg_order, keywords_sales, price, ads_spend, list_score, coupon_rate, stock,
                    deal_price=0, deal_stock=0, week_after_onshelf=1):
@@ -30,7 +31,7 @@ class Predict:
         week_after_onshelf = int(week_after_onshelf)
 
         # variable derived
-        price_weight = (avg_price / price) ** 2
+        price_weight = (price / avg_price) ** 2
         if ads_spend > 1:
             CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
         else:
@@ -49,6 +50,20 @@ class Predict:
         X_organic = int((1 + X_marketing / self.marketing_base) * X_organic)
 
         X_week = int(X_organic + X_marketing)
+
+        ratio_organic = X_organic / X_week
+        ratio_ads = X_ads / X_week
+        ratio_coupon = X_coupon / X_week
+        ratio_lightening_order = X_lightening_order / X_week
+
+        if X_week >= stock:
+            self.if_out_stock = 1
+
+            X_week = stock
+            X_organic = int(X_week * ratio_organic)
+            X_ads = int(X_week * ratio_ads)
+            X_coupon = int(X_week * ratio_coupon)
+            X_lightening_order = X_week - X_organic - X_ads - X_coupon
 
         # result dict
         result_dict = {
@@ -120,11 +135,11 @@ if __name__ == '__main__':
     result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
                            , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
     print(result_dict)
-    #     # keyword = sys.argv[1]
-    #     # review = int(sys.argv[2])
-    #     # stock = int(sys.argv[3])
-    #     # price = float(sys.argv[4])
-    #     # date_onshelf = int(sys.argv[5])
+    # keyword = sys.argv[1]
+    # review = int(sys.argv[2])
+    # stock = int(sys.argv[3])
+    # price = float(sys.argv[4])
+    # date_onshelf = int(sys.argv[5])
     # listing_score = float(sys.argv[6])
     # ads_spend = float(sys.argv[7])
     # deal_flag = int(sys.argv[8])

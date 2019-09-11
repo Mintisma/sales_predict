@@ -12,7 +12,11 @@ class GetData:
         sql = 'SELECT price, est_sales, reviews_30d from {table_name} WHERE keyword="{keyword}"'.format(table_name=table_name, keyword=keyword)
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
-        return results
+        if results:
+            return results
+        else:
+            print(results)
+            raise KeyError
 
     def close(self):
         self.cursor.close()
