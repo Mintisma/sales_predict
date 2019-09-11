@@ -72,7 +72,7 @@ class Predict:
             "Ad_sales": X_ads,
             "coupon_sales": X_coupon,
             "seckilling_sales": X_lightening_order,
-            "ifoutstock": 1 if X_week > stock else 0,
+            "ifoutstock": self.if_out_stock,
             "reviewrate": self.review_rate,
             "sumsales": keywords_sales,
         }
