@@ -41,7 +41,7 @@ class Predict:
         jitter_ads = random.randrange(70, 130) / 100
 
         # predict
-        X_organic = int(jitter * list_score_weight * avg_order * price_weight * self.week_ratio_dict[week_after_onshelf])
+        X_organic = int(jitter * list_score_weight * avg_order / price_weight * self.week_ratio_dict[week_after_onshelf])
         X_ads = calc_ads(jitter_ads, list_score_weight, ads_spend, CPS)
         X_coupon = calc_coupon(jitter, list_score_weight, X_organic, coupon_rate)
         X_lightening_order = calc_deal(price, deal_price, deal_stock, jitter, X_organic, self.lightening_traffic_weight, self.lightening_time_weight)
