@@ -15,25 +15,27 @@ class Predict:
         self.lightening_traffic_weight = 50
         self.lightening_time_weight = 1 / 28
         self.review_rate = review_rate
-        self.marketing_base = 100
+        self.marketing_base = 700
         self.if_out_stock = 0
 
     def predict_sales_week(self, avg_price, avg_order, keywords_sales, price, ads_spend, list_score, coupon_rate, stock,
                    deal_price=0, deal_stock=0, week_after_onshelf=1):
         # variable data type assuring
         price = float(price)
-        ads_spend = float(ads_spend)
-        list_score = float(list_score)
-        coupon_rate = float(coupon_rate)
-        stock = int(stock)
-        deal_price = float(deal_price)
-        deal_stock = int(deal_stock)
-        week_after_onshelf = int(week_after_onshelf)
+        ads_spend = float(ads_spend)  #广告花费
+        list_score = float(list_score)  #listing得分
+        coupon_rate = float(coupon_rate) #coupon
+        stock = int(stock)  #库存
+        deal_price = float(deal_price)  #降价
+        deal_stock = int(deal_stock)   #秒杀库存上限
+        week_after_onshelf = int(week_after_onshelf)   #上架第几周
 
         # variable derived
-        price_weight = (price / avg_price) ** 2
+        price_weight = (price / avg_price) ** 2  #avg_price:类目平均价格
         if ads_spend > 1:
             CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
+            if CPS == 0:
+                CPS = 1
         else:
             CPS = 1
         list_score_weight = list_score * 1.3
@@ -41,20 +43,26 @@ class Predict:
         jitter_ads = random.randrange(70, 130) / 100
 
         # predict
-        X_organic = int(jitter * list_score_weight * avg_order / price_weight * self.week_ratio_dict[week_after_onshelf])
-        X_ads = calc_ads(jitter_ads, list_score_weight, ads_spend, CPS)
-        X_coupon = calc_coupon(jitter, list_score_weight, X_organic, coupon_rate)
+        X_organic = int((jitter * list_score_weight * avg_order / price_weight * self.week_ratio_dict[week_after_onshelf]))#自然销量
+        X_ads = calc_ads(jitter_ads, list_score_weight, ads_spend, CPS)#广告销量
+        X_coupon = calc_coupon(jitter, list_score_weight, X_organic, coupon_rate)#coupon销量`
+        #秒杀销量
         X_lightening_order = calc_deal(price, deal_price, deal_stock, jitter, X_organic, self.lightening_traffic_weight, self.lightening_time_weight)
 
         X_marketing = X_ads + X_coupon + X_lightening_order
         X_organic = int((1 + X_marketing / self.marketing_base) * X_organic)
 
         X_week = int(X_organic + X_marketing)
-
-        ratio_organic = X_organic / X_week
-        ratio_ads = X_ads / X_week
-        ratio_coupon = X_coupon / X_week
-        ratio_lightening_order = X_lightening_order / X_week
+        if X_week==0:
+            ratio_organic = 0
+            ratio_ads = 0
+            ratio_coupon = 0
+            ratio_lightening_order = 0
+        else:
+            ratio_organic = X_organic / X_week
+            ratio_ads = X_ads / X_week
+            ratio_coupon = X_coupon / X_week
+            ratio_lightening_order = X_lightening_order / X_week
 
         if X_week >= stock:
             self.if_out_stock = 1
@@ -132,25 +140,24 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
 
 
 if __name__ == '__main__':
-    result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 2, 'edu.dev.sellermotor.com'
-                           , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
+    keyword = sys.argv[1]
+    review = int(sys.argv[2])
+    stock = int(sys.argv[3])
+    price = float(sys.argv[4])
+    date_onshelf = int(sys.argv[5])
+    listing_score = float(sys.argv[6])
+    ads_spend = float(sys.argv[7])
+    deal_flag=int(sys.argv[8])
+    coupon_rate=int(sys.argv[9])
+    deal_price=float(sys.argv[4])-float(sys.argv[10])
+    deal_stock=int(sys.argv[11])
+    week_after_onshelf=int(sys.argv[12])
+    host=sys.argv[13]
+    user=sys.argv[14]
+    password=sys.argv[15]
+    dbname=sys.argv[16]
+    result_dict = main(keyword, review, stock, price, date_onshelf, listing_score, ads_spend, deal_flag, coupon_rate, deal_price, deal_stock, week_after_onshelf,host,user,password,dbname)
     print(result_dict)
-    # keyword = sys.argv[1]
-    # review = int(sys.argv[2])
-    # stock = int(sys.argv[3])
-    # price = float(sys.argv[4])
-    # date_onshelf = int(sys.argv[5])
-    # listing_score = float(sys.argv[6])
-    # ads_spend = float(sys.argv[7])
-    # deal_flag = int(sys.argv[8])
-    # coupon_rate = int(sys.argv[9])
-    # deal_price = float(sys.argv[10])
-    # deal_stock = int(sys.argv[11])
-    # week_after_onshelf = int(sys.argv[12])
-    # host = sys.argv[13]
-    # user = sys.argv[14]
-    # password = sys.argv[15]
-    # dbname = sys.argv[16]
-    # result_dict = main(keyword, review, stock, price, date_onshelf, listing_score, ads_spend, deal_flag,
-    #                    coupon_rate, deal_price, deal_stock, week_after_onshelf, host, user, password, dbname)
+    # result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 20, 'edu.dev.sellermotor.com'
+    #                        , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
     # print(result_dict)
