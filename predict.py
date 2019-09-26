@@ -68,10 +68,13 @@ class Predict:
             self.if_out_stock = 1
 
             X_week = stock
-            X_organic = int(X_week * ratio_organic)
+            # X_organic = int(X_week * ratio_organic)
             X_ads = int(X_week * ratio_ads)
             X_coupon = int(X_week * ratio_coupon)
-            X_lightening_order = X_week - X_organic - X_ads - X_coupon
+            X_lightening_order = int(X_week * ratio_lightening_order)
+            # X_lightening_order = X_week - X_organic - X_ads - X_coupon
+            X_organic = X_week - X_ads - X_coupon - X_lightening_order
+
 
         # result dict
         result_dict = {
