@@ -91,7 +91,8 @@ class Predict:
         return result_dict
 
 
-def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, deal_flag, coupon_rate=0, deal_price=0, deal_stock=0, week_after_onshelf=1,
+def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, deal_flag, coupon_rate=0, deal_price=0,
+         deal_stock=0, week_after_onshelf=1, standard_listing_score=0.5,
          host='smads.cvj7a7mv2hkz.us-west-2.rds.amazonaws.com', user="sm_ppc", password="$Q3nBY6V0AByT6DW", dbname='sm_ad'):
     """
     param:
@@ -107,6 +108,7 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
     10. deal_price: e.g. 3, which means -3 from original price
     11. deal_stock: e.g. 100, which means the total stock used for lightening deal
     12. week_after_onshelf: e.g. 5, which means 5 weeks after listing onshelf
+    13. standard_listing_score: e.g. 0.3, 0.5, 0.8 for low, median and high competitiveness
     13. host: mysql connection
     14. user: mysql connection
     15. password: mysql connection
@@ -118,6 +120,7 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
         "Nature_sales":25.759847304230426,  ## okay
         "salesresult":7025.759847304231,    ## okay
         "sumsales":1547400,
+        "standard_sumsales": 15000,
         "Ad_sales":7000,    ## okay
         "ifoutstock":0,     ## okay
         "seckilling_sales":0,   ## okay
@@ -139,28 +142,36 @@ def main(keyword, review, stock, price, date_onshelf, list_score, ads_spend, dea
     result_dict = pd.predict_sales_week(cleaned_data.avg_price, cleaned_data.avg_order, cleaned_data.total_sales, price,
                                     ads_spend, list_score, coupon_rate, stock, deal_price, deal_stock, week_after_onshelf)
 
+    # get competitor sales
+    jitter = random.randrange(90, 110) / 100
+    standard_listing_score *= jitter
+    standard_sumsales = pd.predict_sales_week(cleaned_data.avg_price, cleaned_data.avg_order, cleaned_data.total_sales, price,
+                                    ads_spend, standard_listing_score, coupon_rate, stock, deal_price, deal_stock, week_after_onshelf)
+
+    result_dict['standard_salesresult'] = standard_sumsales['salesresult']
+
     return result_dict
 
 
 if __name__ == '__main__':
-    keyword = sys.argv[1]
-    review = int(sys.argv[2])
-    stock = int(sys.argv[3])
-    price = float(sys.argv[4])
-    date_onshelf = int(sys.argv[5])
-    listing_score = float(sys.argv[6])
-    ads_spend = float(sys.argv[7])
-    deal_flag=int(sys.argv[8])
-    coupon_rate=int(sys.argv[9])
-    deal_price=float(sys.argv[4])-float(sys.argv[10])
-    deal_stock=int(sys.argv[11])
-    week_after_onshelf=int(sys.argv[12])
-    host=sys.argv[13]
-    user=sys.argv[14]
-    password=sys.argv[15]
-    dbname=sys.argv[16]
-    result_dict = main(keyword, review, stock, price, date_onshelf, listing_score, ads_spend, deal_flag, coupon_rate, deal_price, deal_stock, week_after_onshelf,host,user,password,dbname)
-    print(result_dict)
-    # result_dict = main("aaa batteries energizer", 10, 2000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 20, 'edu.dev.sellermotor.com'
-    #                        , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
+    # keyword = sys.argv[1]
+    # review = int(sys.argv[2])
+    # stock = int(sys.argv[3])
+    # price = float(sys.argv[4])
+    # date_onshelf = int(sys.argv[5])
+    # listing_score = float(sys.argv[6])
+    # ads_spend = float(sys.argv[7])
+    # deal_flag=int(sys.argv[8])
+    # coupon_rate=int(sys.argv[9])
+    # deal_price=float(sys.argv[4])-float(sys.argv[10])
+    # deal_stock=int(sys.argv[11])
+    # week_after_onshelf=int(sys.argv[12])
+    # host=sys.argv[13]
+    # user=sys.argv[14]
+    # password=sys.argv[15]
+    # dbname=sys.argv[16]
+    # result_dict = main(keyword, review, stock, price, date_onshelf, listing_score, ads_spend, deal_flag, coupon_rate, deal_price, deal_stock, week_after_onshelf,host,user,password,dbname)
     # print(result_dict)
+    result_dict = main("aaa batteries energizer", 10, 5000, 10.0, 1, 0.7, 1, 1, 20, 0, 300, 20, 1, 'edu.dev.sellermotor.com'
+                           , 'smedu', 'wcw2iE2Txp3ZZAiy', 'sm_edu')
+    print(result_dict)
