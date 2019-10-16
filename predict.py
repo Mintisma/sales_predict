@@ -31,7 +31,7 @@ class Predict:
         week_after_onshelf = int(week_after_onshelf)   #上架第几周
 
         # variable derived
-        price_weight = (price / avg_price) ** 3  #avg_price:类目平均价格
+        price_weight = (price / avg_price) ** 5  #avg_price:类目平均价格
         if ads_spend > 1:
             CPS = math.log(ads_spend, 2) * math.log(price, 2) / 10 * price_weight
             if CPS == 0:
